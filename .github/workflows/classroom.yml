@@ -12,15 +12,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONUNBUFFERED: "1"
-      DJANGO_SECRET_KEY: "test-secret"
-      MODE: "local"
+      # Пользователи/БД приложения:
+      DB_CARS: "cars"
+      DB_RENTALS: "rentals"
+      DB_PAYMENTS: "payments"
+      DB_USER: "program"
+      DB_PASSWORD: "test"
+      DB_DOCKER_HOST: "postgres"
+      DB_LOCAL_HOST: "localhost"
+      DB_PORT: "5432"
+      # для сервисов
+      DJANGO_SECRET_KEY: "test"
+      MODE: "docker"
       DJANGO_ALLOWED_HOSTS: "*"
-      DB_NAME: "test-db"
-      DB_USER: "test-user"
-      DB_PASSWORD: "test-password"
-      DB_DOCKER_HOST: "test-host"
-      DB_LOCAL_HOST: "test-host"
-      DB_PORT: "test-port"
+      CAR_SERVICE_URL: "http://car-service:8000/api/v1"
+      RENTAL_SERVICE_URL: "http://rental-service:8000/api/v1"
+      PAYMENT_SERVICE_URL: "http://payment-service:8000/api/v1"
 
     steps:
       - name: Checkout
@@ -78,7 +85,7 @@ jobs:
       DB_LOCAL_HOST: "localhost"
       DB_PORT: "5432"
       # для сервисов
-      DJANGO_SECRET_KEY: "django-insecure-8$n)06xuo40jj3(9nraj0zr8ikg888l*h-9^q1kiuswb8l7%*$"
+      DJANGO_SECRET_KEY: "test"
       MODE: "docker"
       DJANGO_ALLOWED_HOSTS: "*"
       CAR_SERVICE_URL: "http://car-service:8000/api/v1"
