@@ -7,21 +7,94 @@ on:
     branches:
       - master
 jobs:
-  build:
-    name: Autograding
+  tests:
+    name: Autograding & Project Tests
     runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
+      DJANGO_SECRET_KEY: "test-secret"
+      MODE: "local"
+      DJANGO_ALLOWED_HOSTS: "*"
+      DB_NAME: "test-db"
+      DB_USER: "test-user"
+      DB_PASSWORD: "test-password"
+      DB_DOCKER_HOST: "test-host"
+      DB_LOCAL_HOST: "test-host"
+      DB_PORT: "test-port"
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: docker/setup-buildx-action@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
 
-      # TODO build and run unit tests
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Django system check
+        run: python services/car-service/manage.py check
+      - name: Run tests
+        run: python services/car-service/manage.py test
+
+      - name: Django system check
+        run: python services/rental-service/manage.py check
+      - name: Run tests
+        run: python services/rental-service/manage.py test
+
+      - name: Django system check
+        run: python services/payment-service/manage.py check
+      - name: Run tests
+        run: python services/payment-service/manage.py test
+
+      - name: Django system check
+        run: python services/gateway-service/manage.py check
+      - name: Run tests
+        run: python services/gateway-service/manage.py test
+
+  build:
+    name: Autograding
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres"
+      # Пользователи/БД приложения:
+      DB_CARS: "cars"
+      DB_RENTALS: "rentals"
+      DB_PAYMENTS: "payments"
+      DB_USER: "program"
+      DB_PASSWORD: "test"
+      DB_DOCKER_HOST: "postgres"
+      DB_LOCAL_HOST: "localhost"
+      DB_PORT: "5432"
+      # для сервисов
+      DJANGO_SECRET_KEY: "django-insecure-8$n)06xuo40jj3(9nraj0zr8ikg888l*h-9^q1kiuswb8l7%*$"
+      MODE: "docker"
+      DJANGO_ALLOWED_HOSTS: "*"
+      CAR_SERVICE_URL: "http://car-service:8000/api/v1"
+      RENTAL_SERVICE_URL: "http://rental-service:8000/api/v1"
+      PAYMENT_SERVICE_URL: "http://payment-service:8000/api/v1"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build images
         timeout-minutes: 10
-        run: docker compose build
+        run: docker compose build --parallel
 
       - name: Run containers
         timeout-minutes: 5
@@ -34,25 +107,14 @@ jobs:
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
-          # TODO insert your variant
-          collection: <variant>/postman/collection.json
-          environment: <variant>/postman/environment.json
+          collection: v3/postman/collection.json
+          environment: v3/postman/environment.json
           delayRequest: 100
           reporters: '[ "cli" ]'
 
       - uses: education/autograding@v1
         id: autograder
         continue-on-error: true
-
-      - name: Github auto grader mark
-        uses: Romanow/google-sheet-autograder-marker@v1.0
-        with:
-          google_token: ${{secrets.GOOGLE_API_KEY}}
-          sheet_id: "1xkgjUX6Qmk7rdJG-QPOToav-HWWtthJjnShIKnw3oIY"
-          homework_number: 2
-          user_column: 'D'
-          column_offset: 'F'
-          mark: "'+"
 
       - name: Stop containers
         if: always()

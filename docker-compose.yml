@@ -1,20 +1,120 @@
-version: "3"
+name: ds-lab2
+
 services:
   postgres:
-    image: library/postgres:13
+    image: postgres:16-alpine
     container_name: postgres
-    restart: on-failure
+    restart: always
+    env_file: .env
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: postgres
+      POSTGRES_DB: ${POSTGRES_DB} # БД по умолчанию для 1 запуска
+      POSTGRES_USER: ${POSTGRES_USER} # Пользователь по умолчанию для 1 запуска
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Пароль по умолчанию для 1 запуска
     volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./postgres/:/docker-entrypoint-initdb.d/
+      - pgdata:/var/lib/postgresql/data       # монтирование тома с данными на хосте
+      - ./postgres/:/docker-entrypoint-initdb.d:ro # Скрипты для 1 запуска. Если pgdata не пустой то не запустится
+    shm_size: "256m"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h 127.0.0.1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks: [ internal ]
+
+  car-service:
+    container_name: car-service
+    build:
+      context: ./services/car-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
     ports:
-      - "5432:5432"
-
-# TODO добавить сервисы
-
+      - "8050:8000"
+    read_only: true
+    tmpfs: [ "/tmp", "/run" ]
+    healthcheck:
+     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://car-service:8000/api/v1/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
+     interval: 15s
+     timeout: 3s
+     retries: 5
+     start_period: 30s
+    networks:
+      internal:
+        aliases:
+          - car-service
+    depends_on:
+      - postgres
+  rental-service:
+    container_name: rental-service
+    build:
+      context: ./services/rental-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8060:8000"
+    read_only: true
+    tmpfs: [ "/tmp", "/run" ]
+    healthcheck:
+     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://rental-service:8000/api/v1/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
+     interval: 15s
+     timeout: 3s
+     retries: 5
+     start_period: 30s
+    networks:
+      internal:
+        aliases:
+          - rental-service
+    depends_on:
+      - postgres
+  payment-service:
+    container_name: payment-service
+    build:
+      context: ./services/payment-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8070:8000"
+    read_only: true
+    tmpfs: [ "/tmp", "/run" ]
+    healthcheck:
+     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://payment-service:8000/api/v1/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
+     interval: 15s
+     timeout: 3s
+     retries: 5
+     start_period: 30s
+    networks:
+      internal:
+        aliases:
+          - payment-service
+    depends_on:
+      - postgres
+  gateway-service:
+    container_name: gateway-service
+    build:
+      context: ./services/gateway-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8080:8000"
+    tmpfs: [ "/tmp", "/run" ]
+    healthcheck:
+     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://gateway-service:8000/api/v1/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
+     interval: 15s
+     timeout: 3s
+     retries: 5
+     start_period: 30s
+    networks:
+      internal:
+        aliases:
+          - gateway-service
+    depends_on:
+      - postgres
 volumes:
-  db-data:
+  pgdata:
+
+networks:
+  internal:
