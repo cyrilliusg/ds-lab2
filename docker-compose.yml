@@ -5,7 +5,6 @@ services:
     image: postgres:16-alpine
     container_name: postgres
     restart: always
-    env_file: .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB} # БД по умолчанию для 1 запуска
       POSTGRES_USER: ${POSTGRES_USER} # Пользователь по умолчанию для 1 запуска
@@ -28,7 +27,18 @@ services:
       context: ./services/car-service
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
+    environment:
+      # Пользователи/БД приложения:
+      DB_CARS: "cars"
+      DB_USER: "program"
+      DB_PASSWORD: "test"
+      DB_DOCKER_HOST: "postgres"
+      DB_LOCAL_HOST: "localhost"
+      DB_PORT: "5432"
+      # для сервисов
+      DJANGO_SECRET_KEY: "test"
+      MODE: "docker"
+      DJANGO_ALLOWED_HOSTS: "*"
     ports:
       - "8050:8000"
     read_only: true
@@ -51,7 +61,18 @@ services:
       context: ./services/rental-service
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
+    environment:
+      # Пользователи/БД приложения:
+      DB_RENTALS: "rentals"
+      DB_USER: "program"
+      DB_PASSWORD: "test"
+      DB_DOCKER_HOST: "postgres"
+      DB_LOCAL_HOST: "localhost"
+      DB_PORT: "5432"
+      # для сервисов
+      DJANGO_SECRET_KEY: "test"
+      MODE: "docker"
+      DJANGO_ALLOWED_HOSTS: "*"
     ports:
       - "8060:8000"
     read_only: true
@@ -74,7 +95,18 @@ services:
       context: ./services/payment-service
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
+    environment:
+      # Пользователи/БД приложения:
+      DB_PAYMENTS: "payments"
+      DB_USER: "program"
+      DB_PASSWORD: "test"
+      DB_DOCKER_HOST: "postgres"
+      DB_LOCAL_HOST: "localhost"
+      DB_PORT: "5432"
+      # для сервисов
+      DJANGO_SECRET_KEY: "test"
+      MODE: "docker"
+      DJANGO_ALLOWED_HOSTS: "*"
     ports:
       - "8070:8000"
     read_only: true
@@ -97,7 +129,13 @@ services:
       context: ./services/gateway-service
       dockerfile: Dockerfile
     restart: unless-stopped
-    env_file: .env
+    environment:
+      DJANGO_SECRET_KEY: "test"
+      MODE: "docker"
+      DJANGO_ALLOWED_HOSTS: "*"
+      CAR_SERVICE_URL: "http://car-service:8000/api/v1"
+      RENTAL_SERVICE_URL: "http://rental-service:8000/api/v1"
+      PAYMENT_SERVICE_URL: "http://payment-service:8000/api/v1"
     ports:
       - "8080:8000"
     tmpfs: [ "/tmp", "/run" ]
