@@ -62,6 +62,7 @@ jobs:
 
   build:
     name: Autograding
+    needs: [tests]
     runs-on: ubuntu-latest
     env:
       POSTGRES_USER: "postgres"
