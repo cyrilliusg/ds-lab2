@@ -36,7 +36,7 @@ if MODE == 'local':
     DEBUG = True
 else:
     DB_HOST = DB_DOCKER_HOST
-    DEBUG = False
+    DEBUG = True # временно
 
 # Куда собирать статику командой collectstatic
 STATIC_ROOT = BASE_DIR / "staticfiles"

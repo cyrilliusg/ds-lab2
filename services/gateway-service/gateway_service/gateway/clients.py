@@ -4,24 +4,25 @@ from django.conf import settings
 
 def get_cars(show_all=False, page=0, size=10):
     params = {"showAll": show_all, "page": page, "size": size}
-    r = requests.get(f"{settings.CARS_SERVICE_URL}/cars", params=params)
+    url = f"{settings.CAR_SERVICE_URL}/cars"
+    r = requests.get(url, params=params)
     r.raise_for_status()
     return r.json()
 
 
 def get_car(car_uid):
-    r = requests.get(f"{settings.CARS_SERVICE_URL}/cars/{car_uid}")
+    r = requests.get(f"{settings.CAR_SERVICE_URL}/cars/{car_uid}")
     r.raise_for_status()
     return r.json()
 
 
 def reserve_car(car_uid):
-    r = requests.post(f"{settings.CARS_SERVICE_URL}/cars/{car_uid}/reserve")
+    r = requests.post(f"{settings.CAR_SERVICE_URL}/cars/{car_uid}/reserve")
     r.raise_for_status()
 
 
 def release_car(car_uid):
-    r = requests.post(f"{settings.CARS_SERVICE_URL}/cars/{car_uid}/release")
+    r = requests.post(f"{settings.CAR_SERVICE_URL}/cars/{car_uid}/release")
     r.raise_for_status()
 
 

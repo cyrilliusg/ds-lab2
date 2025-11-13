@@ -32,7 +32,7 @@ PAYMENT_SERVICE_URL = os.getenv("PAYMENT_SERVICE_URL", "http://payment-service:8
 if MODE == 'local':
     DEBUG = True
 else:
-    DEBUG = False
+    DEBUG = True # временно
 
 # Куда собирать статику командой collectstatic
 STATIC_ROOT = BASE_DIR / "staticfiles"

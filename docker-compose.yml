@@ -44,7 +44,7 @@ services:
     read_only: true
     tmpfs: [ "/tmp", "/run" ]
     healthcheck:
-     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://car-service:8000/api/v1/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
+     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://car-service:8000/manage/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
      interval: 15s
      timeout: 3s
      retries: 5
@@ -78,7 +78,7 @@ services:
     read_only: true
     tmpfs: [ "/tmp", "/run" ]
     healthcheck:
-     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://rental-service:8000/api/v1/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
+     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://rental-service:8000/manage/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
      interval: 15s
      timeout: 3s
      retries: 5
@@ -112,7 +112,7 @@ services:
     read_only: true
     tmpfs: [ "/tmp", "/run" ]
     healthcheck:
-     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://payment-service:8000/api/v1/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
+     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://payment-service:8000/manage/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
      interval: 15s
      timeout: 3s
      retries: 5
@@ -140,7 +140,7 @@ services:
       - "8080:8000"
     tmpfs: [ "/tmp", "/run" ]
     healthcheck:
-     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://gateway-service:8000/api/v1/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
+     test: ["CMD-SHELL", "python - <<'EOF'\nimport urllib.request, sys\ntry:\n  urllib.request.urlopen('http://gateway-service:8000/manage/health', timeout=2)\n  sys.exit(0)\nexcept Exception:\n  sys.exit(1)\nEOF"]
      interval: 15s
      timeout: 3s
      retries: 5
