@@ -47,22 +47,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Django system check
+      - name: Car-service system check
         run: python services/car-service/manage.py check
       - name: Run tests
         run: python services/car-service/manage.py test
 
-      - name: Django system check
+      - name: Rental-service system check
         run: python services/rental-service/manage.py check
       - name: Run tests
         run: python services/rental-service/manage.py test
 
-      - name: Django system check
+      - name: Payment-service system check
         run: python services/payment-service/manage.py check
       - name: Run tests
         run: python services/payment-service/manage.py test
 
-      - name: Django system check
+      - name: Gateway-service system check
         run: python services/gateway-service/manage.py check
       - name: Run tests
         run: python services/gateway-service/manage.py test
