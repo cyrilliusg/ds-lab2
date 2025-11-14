@@ -14,7 +14,7 @@ services:
       - ./postgres/:/docker-entrypoint-initdb.d:ro # Скрипты для 1 запуска. Если pgdata не пустой то не запустится
     shm_size: "256m"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h 127.0.0.1" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h 127.0.0.1" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -54,7 +54,9 @@ services:
         aliases:
           - car-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+        restart: true
   rental-service:
     container_name: rental-service
     build:
@@ -88,7 +90,9 @@ services:
         aliases:
           - rental-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+        restart: true
   payment-service:
     container_name: payment-service
     build:
@@ -122,7 +126,9 @@ services:
         aliases:
           - payment-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+        restart: true
   gateway-service:
     container_name: gateway-service
     build:
@@ -150,7 +156,9 @@ services:
         aliases:
           - gateway-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+        restart: true
 volumes:
   pgdata:
 #
