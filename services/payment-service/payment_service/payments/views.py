@@ -31,19 +31,8 @@ class PaymentViewSet(mixins.CreateModelMixin,
         return Response(PaymentSerializer(payment).data)
 
     def destroy(self, request, *args, **kwargs):
-        """Идемпотентная отмена: всегда 204; переводит в CANCELED при необходимости."""
         payment = self.get_object()
         if payment.status != Payment.Status.CANCELED:
             payment.status = Payment.Status.CANCELED
             payment.save(update_fields=["status"])
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=["post"], url_path="cancel")
-    def cancel(self, request, *args, **kwargs):
-        """Альтернативная отмена с явным конфликтом, если уже отменён."""
-        payment = self.get_object()
-        if payment.status == Payment.Status.CANCELED:
-            return Response({"message": "Платёж уже отменён"}, status=status.HTTP_409_CONFLICT)
-        payment.status = Payment.Status.CANCELED
-        payment.save(update_fields=["status"])
         return Response(status=status.HTTP_204_NO_CONTENT)

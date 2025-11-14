@@ -11,9 +11,9 @@ class Rental(models.Model):
     id = models.AutoField(primary_key=True)
     rental_uid = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True)
     username = models.CharField(max_length=80)
-    payment_uid = models.UUIDField()  # внешний UUID платежа (пока генерим локально-заглушку)
+    payment_uid = models.UUIDField()
     car_uid = models.UUIDField()
-    date_from = models.DateTimeField()  # хранить в UTC/TZ-aware (USE_TZ=True)
+    date_from = models.DateTimeField()
     date_to = models.DateTimeField()
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.IN_PROGRESS)
 

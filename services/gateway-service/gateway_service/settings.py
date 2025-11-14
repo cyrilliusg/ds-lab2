@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +31,7 @@ PAYMENT_SERVICE_URL = os.getenv("PAYMENT_SERVICE_URL", "http://payment-service:8
 if MODE == 'local':
     DEBUG = True
 else:
-    DEBUG = True # временно
+    DEBUG = False
 
 # Куда собирать статику командой collectstatic
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -72,8 +71,7 @@ LOGGING = {
             "propagate": True,
         },
 
-        # Логи нашего модуля с клиентами (пример: app/services/client.py)
-        "gateway_service.gateway": {  # ← поменяй на свой путь!
+        "gateway_service.gateway": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,

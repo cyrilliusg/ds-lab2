@@ -18,7 +18,6 @@ class RentalListView(APIView):
         username = request.headers.get("X-User-Name")
         rentals = clients.get_rentals(username)
 
-        # enrich rentals
         enriched = []
         for r in rentals:
             car = clients.get_car(r["carUid"])
@@ -52,17 +51,14 @@ class RentalListView(APIView):
         car = clients.get_car(car_uid)
         price_per_day = car["price"]
 
-        # считаем сумму аренды
         from datetime import date
         d1, d2 = date.fromisoformat(date_from), date.fromisoformat(date_to)
         total_days = (d2 - d1).days
         total_price = price_per_day * total_days
 
-        # создаём платёж и резервируем авто
         payment = clients.create_payment(total_price)
         clients.reserve_car(car_uid)
 
-        # создаём аренду
         rental = clients.create_rental(username, car_uid, payment["paymentUid"], date_from, date_to)
 
         return Response({
@@ -80,7 +76,7 @@ class RentalDetailView(APIView):
     def get(self, request, rentalUid):
         username = request.headers.get("X-User-Name")
 
-        r = clients.get_rental(username, str(rentalUid))  # 404, если не его аренда
+        r = clients.get_rental(username, str(rentalUid))
         car = clients.get_car(r["carUid"])
         payment = clients.get_payment(r["paymentUid"])
         return Response({
@@ -104,10 +100,9 @@ class RentalDetailView(APIView):
     def delete(self, request, rentalUid):
         """Отмена аренды: release car + cancel payment + cancel rental → 204"""
         username = request.headers.get("X-User-Name")
-        # сначала читаем аренду, чтобы знать carUid/paymentUid; также проверит владельца
+
         r = clients.get_rental(username, str(rentalUid))
 
-        # порядок важен только логически; ошибки прокидываем наверх
         clients.release_car(r["carUid"])
         clients.cancel_payment(r["paymentUid"])
         clients.cancel_rental(username, str(rentalUid))
@@ -120,9 +115,8 @@ class RentalFinishView(APIView):
 
     def post(self, request, rentalUid):
         username = request.headers.get("X-User-Name")
-        r = clients.get_rental(username, str(rentalUid))  # проверка владения
+        r = clients.get_rental(username, str(rentalUid))
 
-        # Завершение: снять резерв с авто и пометить аренду FINISHED
         clients.release_car(r["carUid"])
         clients.finish_rental(username, str(rentalUid))
 
