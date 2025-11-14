@@ -32,7 +32,7 @@ class RentalListView(APIView):
                     "carUid": car["carUid"],
                     "brand": car["brand"],
                     "model": car["model"],
-                    "registrationNumber": car["registration_number"],
+                    "registrationNumber": car["registrationNumber"],
                 },
                 "payment": {
                     "paymentUid": payment["paymentUid"],

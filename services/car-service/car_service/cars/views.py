@@ -6,6 +6,14 @@ from .models import Car
 from .serializers import CarResponseSerializer
 from .pagination import ApiPagination
 
+def define_bool(raw_string) -> bool:
+    if not isinstance(raw_string, str):
+        return True
+
+    if raw_string.lower() in ("false", "0", "no"):
+        return False
+
+    return True
 
 class CarViewSet(viewsets.ModelViewSet):
     """
@@ -20,12 +28,14 @@ class CarViewSet(viewsets.ModelViewSet):
 
     #  UUID в путь-параметрах
     lookup_field = "car_uid"
-    lookup_value_regex = r"[0-9a-fA-F-]{36}"
 
     def get_queryset(self):
         qs = super().get_queryset()
-        show_all = self.request.query_params.get("showAll")
-        if not (isinstance(show_all, str) and show_all.lower() in ("true", "1", "yes")):
+
+        show_all_raw = self.request.query_params.get("showAll")
+        show_all = define_bool(show_all_raw)
+
+        if not show_all:
             qs = qs.filter(availability=True)
         return qs
 

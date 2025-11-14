@@ -19,5 +19,5 @@ from django.urls import path
 from .views import CarViewSet
 
 urlpatterns = [
-    path(" /api/v1/cars", CarViewSet.as_view(), name="cars-crud"),
+    path("/api/v1/cars", CarViewSet.as_view(), name="cars-crud"),
 ]
