@@ -3,6 +3,19 @@
 import uuid
 from django.db import migrations, models
 
+def add_initial_car(apps, schema_editor):
+    Car = apps.get_model('cars', 'Car')
+    Car.objects.create(
+        id=1,
+        car_uid="109b42f3-198d-4c89-9276-a7520a7120ab",
+        brand="Mercedes Benz",
+        model="GLA 250",
+        registration_number="ЛО777Х799",
+        power=249,
+        price=3500,
+        type="SEDAN",
+        availability=True,
+    )
 
 class Migration(migrations.Migration):
 
@@ -30,4 +43,5 @@ class Migration(migrations.Migration):
                 'indexes': [models.Index(fields=['availability'], name='cars_availab_ce8337_idx'), models.Index(fields=['brand', 'model'], name='cars_brand_78f303_idx')],
             },
         ),
+        migrations.RunPython(add_initial_car, migrations.RunPython.noop),
     ]
